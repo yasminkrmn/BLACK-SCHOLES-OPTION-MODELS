@@ -1,0 +1,72 @@
+import numpy as np
+from scipy.stats import norm
+import math
+
+
+def black_scholes_standart(S, K, T, r, sigma, model = ["Call" or "Put"]):
+    """
+    It calculates European Greeks Call Option Price or European Greeks Put Option Price using The Black-Scholes Formula
+
+    Parameters
+    ----------
+    S : current share price
+    K : the exercise price
+    T : maturity
+    r : risk-free rate
+    sigma : the share’s volatility
+    model :
+            Call: Call option
+            Put: 𝑷𝒖𝒕 option
+
+    Returns
+        if Call : The Black-Scholes Call option price
+          ΔCall : the sensitivity of the call option price to the price of the underlying asset
+          ρCall : the sensitivity of the option price to the change of the interest rate
+          GammaCall : the second-order derivative with respect to share price.
+          VegaCall : the first-order derivative with respect to volatility
+          ThetaCall : the first-order derivative with respect to maturity
+
+        if Put : The Black-Scholes 𝑷𝒖𝒕 option price
+          ΔPut : the sensitivity of the put option price to the price of the underlying asset
+          ρPut : the sensitivity of the option price to the change of the interest rate
+          GammaPut : the second-order derivative with respect to share price.
+          VegaPut : the first-order derivative with respect to volatility
+          ThetaPut : the first-order derivative with respect to maturity
+    -------
+    """
+
+    if model == "Call":
+        d1 = (np.log(S / K) + (r + 0.5 * sigma ** 2) * T) / (sigma * np.sqrt(T))
+        d2 = (np.log(S / K) + (r - 0.5 * sigma ** 2) * T) / (sigma * np.sqrt(T))
+        Call = (S * norm.cdf(d1, 0, 1) - K * np.exp(-r * T) * norm.cdf(d2, 0, 1))
+        ΔCall = norm.cdf(d1, 0, 1)
+        ρCall = T * K * np.exp(-r * T) * norm.cdf(d2, 0, 1)
+        GammaCall = norm.pdf(d1, 0, 1) / (S * sigma * np.sqrt(T))
+        VegaCall =  norm.pdf(d1, 0, 1) * np.sqrt(T)
+        ThetaCall = -S * norm.pdf(d1, 0, 1) * sigma / (2 * np.sqrt(T)) - r * K * np.exp(-r * T) * norm.cdf(d2, 0, 1)
+
+        print('The price of the 𝑪𝒂𝒍𝒍 option: {:.4f}'.format(Call))
+        print('The Δ𝑪𝒂𝒍𝒍 of the 𝑪𝒂𝒍𝒍 option: {:.4f}'.format(ΔCall))
+        print('The ρ𝑪𝒂𝒍𝒍 of the 𝑪𝒂𝒍𝒍 option: {:.4f}'.format(ρCall))
+        print('The Gamma of the 𝑪𝒂𝒍𝒍 option: ', round(GammaCall, 4))
+        print('The Vega of the 𝑪𝒂𝒍𝒍 option: ', round(VegaCall, 4))
+        print('The Theta of the 𝑪𝒂𝒍𝒍 option: ', round(ThetaCall, 4))
+    else:
+        d1 = (np.log(S / K) + (r + 0.5 * sigma ** 2) * T) / (sigma * np.sqrt(T))
+        d2 = (np.log(S / K) + (r - 0.5 * sigma ** 2) * T) / (sigma * np.sqrt(T))
+        Put = (K * np.exp(-r * T) * norm.cdf(-d2, 0, 1) - S * norm.cdf(-d1, 0, 1))
+        ΔPut = -norm.cdf(-d1, 0, 1)
+        ρPut = -T * K * np.exp(-r * T) * norm.cdf(-d2, 0, 1)
+        GammaPut = norm.pdf(d1, 0, 1) / (S * sigma * np.sqrt(T))
+        VegaPut = norm.pdf(d1, 0, 1) * np.sqrt(T)
+        ThetaPut = -S * norm.pdf(d1, 0, 1) * sigma / (2 * np.sqrt(T)) - r * K * np.exp(-r * T) * norm.cdf(-d2, 0, 1)
+
+        print('The price of th 𝑷𝒖𝒕 option: {:.4f}'.format(Put))
+        print('The Δ𝑷𝒖𝒕 of the 𝑷𝒖𝒕 option: {:.4f}'.format(ΔPut))
+        print('The ρ𝑷𝒖𝒕 of the 𝑷𝒖𝒕 option: {:.4f}'.format(ρPut))
+        print('The Gamma of the 𝑷𝒖𝒕 option: ', round(GammaPut, 4))
+        print('The Vega of the 𝑷𝒖𝒕 option: ', round(VegaPut, 4))
+        print('The Theta of the 𝑷𝒖𝒕 option: ', round(ThetaPut ,4))
+
+black_scholes_standart(50, 100, 1, 0.05, 0.25, model="Call")
+black_scholes_standart(50, 100, 1, 0.05, 0.25, model="Put")
